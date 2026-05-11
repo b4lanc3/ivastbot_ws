@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!--
+  IvastBot main URDF description.
+  
+  Robot layout (from SolidWorks "dự án HN"):
+    - 2 bánh chủ động phía SAU (left/right_wheel)
+    - 2 bánh caster phía TRƯỚC
+    - LiDAR RPLidar A2M8 mounted on top
+  
+  Wheel dimensions (from URDF geometry):
+    - wheel_separation ≈ 0.22327 m (y distance between drive wheels)
+    - wheel center height = 0.085 m from base_link origin
+    - TODO: Measure actual wheel_radius with calipers
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ivastbot">
+    <xacro:include filename="$(find bringup)/urdf/robot_description.urdf.xacro" />
+
+    <!-- Instantiate robot -->
+    <xacro:robot prefix="" />
+
+    <!-- Base Footprint (ground plane reference) -->
+    <link name="base_footprint" />
+    <joint name="base_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="base_footprint" />
+        <origin xyz="0 0 -0.085" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Laser Frame (RPLidar A2M8 mount position) -->
+    <link name="laser_frame">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.2"/>
+        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.035" length="0.04"/>
+        </geometry>
+        <material name="lidar_blue">
+          <color rgba="0.2 0.2 0.8 0.8"/>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="lidar_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="laser_frame"/>
+        <origin xyz="0.22 0 0.055" rpy="0 0 0"/>
+    </joint>
+
+    <!-- IMU Link -->
+    <link name="imu_link" />
+    <joint name="imu_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <origin xyz="0 0 0.067" rpy="0 0 0"/>
+    </joint>
+
+    <!-- ros2_control: IDS830 servo hardware interface -->
+    <xacro:include filename="$(find bringup)/urdf/ids830.ros2_control.xacro" />
+    <xacro:ids830_ros2_control
+        name="ids830_drivetrain" prefix=""
+        can_channel="/dev/ttyACM0" left_id="4" right_id="2" />
+
+</robot>

@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<!--
+  IvastBot Robot Description (from SolidWorks export "dự án HN").
+  
+  Robot layout:
+    - base_link: robot body
+    - banhtotrai_link (left_wheel):  bánh chủ động trái  (phía SAU)
+    - banhtophai_link (right_wheel): bánh chủ động phải  (phía SAU)
+    - banhnhotrai_link (caster_left):  bánh caster trái  (phía TRƯỚC)
+    - banhnhophai_link (caster_right): bánh caster phải  (phía TRƯỚC)
+  
+  Joint positions (from URDF, SolidWorks export - meters):
+    - Left drive wheel:   x=-0.062846, y=+0.11438,  z=0.085
+    - Right drive wheel:  x=-0.062846, y=-0.10889,  z=0.085
+    - Left caster:        x=+0.13102,  y=+0.095245, z=-0.005
+    - Right caster:       x=+0.13102,  y=-0.094755, z=-0.005
+  
+  Measurements to verify for accurate odometry:
+    - wheel_separation: distance between left and right drive wheels
+      From URDF: |0.11438 - (-0.10889)| = 0.22327 m
+    - wheel_radius: radius of drive wheels
+      From mesh inertia, approximately 0.085 m (height of wheel center from ground)
+      TODO: Measure actual wheel radius with calipers
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="robot" params="prefix">
+
+    <!-- ==================== BASE LINK ==================== -->
+    <link name="${prefix}base_link">
+      <inertial>
+        <origin xyz="0.015202 0.00038101 0.067301" rpy="0 0 0" />
+        <mass value="1.5687" />
+        <inertia
+          ixx="0.023552" ixy="-1.0222E-05" ixz="-0.00013115"
+          iyy="0.024257" iyz="-6.8044E-11" izz="0.040898" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://bringup/meshes/base_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.79216 0.81961 0.93333 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://bringup/meshes/base_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- ==================== LEFT DRIVE WHEEL (bánh to trái) ==================== -->
+    <link name="${prefix}left_wheel_link">
+      <inertial>
+        <origin xyz="1.914E-05 0.044901 1.941E-05" rpy="0 0 0" />
+        <mass value="0.78153" />
+        <inertia
+          ixx="0.0019731" ixy="2.236E-07" ixz="-9.212E-07"
+          iyy="0.0038637" iyz="2.268E-07" izz="0.0019731" />
+      </inertial>
+      <!-- Cylinder centered at CoM (45 mm outward from joint in +Y), axis along Y -->
+      <visual>
+        <origin xyz="0 0.045 0" rpy="1.5707963 0 0" />
+        <geometry>
+          <cylinder radius="0.085" length="0.090" />
+        </geometry>
+        <material name="wheel_dark">
+          <color rgba="0.15 0.15 0.15 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0.045 0" rpy="1.5707963 0 0" />
+        <geometry>
+          <cylinder radius="0.085" length="0.090" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${prefix}left_wheel_joint" type="continuous">
+      <origin xyz="-0.062846 0.11438 0.0" rpy="0 0 0" />
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}left_wheel_link" />
+      <axis xyz="0 -1 0" />
+      <limit effort="10" velocity="10" />
+      <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- ==================== RIGHT DRIVE WHEEL (bánh to phải) ==================== -->
+    <link name="${prefix}right_wheel_link">
+      <inertial>
+        <origin xyz="7.622E-07 -0.044911 -2.725E-05" rpy="0 0 0" />
+        <mass value="0.78153" />
+        <inertia
+          ixx="0.0019740" ixy="8.905E-09" ixz="5.150E-08"
+          iyy="0.0038637" iyz="-3.183E-07" izz="0.0019721" />
+      </inertial>
+      <!-- Cylinder centered at CoM (45 mm outward from joint in -Y), axis along Y -->
+      <visual>
+        <origin xyz="0 -0.045 0" rpy="1.5707963 0 0" />
+        <geometry>
+          <cylinder radius="0.085" length="0.090" />
+        </geometry>
+        <material name="wheel_dark">
+          <color rgba="0.15 0.15 0.15 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 -0.045 0" rpy="1.5707963 0 0" />
+        <geometry>
+          <cylinder radius="0.085" length="0.090" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${prefix}right_wheel_joint" type="continuous">
+      <origin xyz="-0.062846 -0.10889 0.0" rpy="0 0 0" />
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}right_wheel_link" />
+      <axis xyz="0 -1 0" />
+      <limit effort="10" velocity="10" />
+      <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <!-- ==================== LEFT CASTER (bánh nhỏ trái - phía trước) ==================== -->
+    <link name="${prefix}caster_left_link">
+      <inertial>
+        <origin xyz="0.000356 0.004998 7.895E-07" rpy="0 0 0" />
+        <mass value="0.002924" />
+        <inertia
+          ixx="1.014E-07" ixy="4.087E-09" ixz="1.420E-11"
+          iyy="1.539E-07" iyz="-1.456E-11" izz="1.013E-07" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://bringup/meshes/banhnhotrai_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.79216 0.81961 0.93333 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://bringup/meshes/banhnhotrai_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${prefix}caster_left_joint" type="fixed">
+      <origin xyz="0.13102 0.095245 -0.005" rpy="0 0 0" />
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}caster_left_link" />
+    </joint>
+
+    <!-- ==================== RIGHT CASTER (bánh nhỏ phải - phía trước) ==================== -->
+    <link name="${prefix}caster_right_link">
+      <inertial>
+        <origin xyz="-0.000187 -0.005007 1.159E-05" rpy="0 0 0" />
+        <mass value="0.002924" />
+        <inertia
+          ixx="1.014E-07" ixy="1.907E-09" ixz="5.522E-11"
+          iyy="1.541E-07" iyz="1.959E-10" izz="1.011E-07" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://bringup/meshes/banhnhophai_link.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="0.79216 0.81961 0.93333 1" />
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://bringup/meshes/banhnhophai_link.STL" />
+        </geometry>
+      </collision>
+    </link>
+    <joint name="${prefix}caster_right_joint" type="fixed">
+      <origin xyz="0.13102 -0.094755 -0.005" rpy="0 0 0" />
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}caster_right_link" />
+    </joint>
+
+  </xacro:macro>
+</robot>

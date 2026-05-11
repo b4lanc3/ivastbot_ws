@@ -1,0 +1,10 @@
+<library path="ids830_hw">
+  <class name="ids830_hw/IDS830HW"
+         type="ids830_hw::IDS830HW"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      ros2_control hardware interface for IDS830 low-voltage DC servo motors.
+      Communicates via RS485 Modbus RTU.
+    </description>
+  </class>
+</library>
